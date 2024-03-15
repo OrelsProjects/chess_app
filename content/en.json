@@ -1,0 +1,9 @@
+{
+  "Home": {
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "title": "Welcome to chess app",
+  "description": "This is a chess app made with React and Redux"
+}
