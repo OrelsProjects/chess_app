@@ -2,11 +2,12 @@ export interface User {
   userId: string;
   email: string;
   displayName?: string;
-  profilePictureUrl?: string;
+  photoURL?: string;
   bio?: string;
   birthDate?: string;
   gender?: string;
   token: string;
+  role: "user" | "admin";
 }
 
 export default User;

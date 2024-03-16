@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
-import User from "../../../models/User";
+import User from "../../../models/user";
+import _ from "lodash";
 
 export type AuthStateType = "anonymous" | "authenticated" | "unauthenticated";
 
@@ -23,6 +24,14 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<User | null>) => {
+      if (
+        (_.isEqual(state.user, action.payload) &&
+          state.state === "authenticated") ||
+        state.state === "anonymous"
+      ) {
+        state.loading = false;
+        return;
+      }
       state.user = action.payload;
       state.loading = false;
       state.state = action.payload ? "authenticated" : "unauthenticated";

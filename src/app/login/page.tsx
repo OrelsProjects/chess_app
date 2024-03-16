@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import { Metadata } from "next";
 import { UserAuthForm } from "./_components/authForm";
-import useAuth from "../../../hooks/useAuth";
+import useAuth from "../../hooks/useAuth";
 
 
 export default function AuthenticationPage() {

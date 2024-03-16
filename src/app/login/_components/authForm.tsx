@@ -3,10 +3,10 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { Input } from "../../../../components/ui/input";
-import { Button } from "../../../../components/ui/button";
-import { Label } from "../../../../components/ui/label";
-import { Icons } from "../../../../components/ui/iconst";
+import { Input } from "../../../components/ui/input";
+import { Button } from "../../../components/ui/button";
+import { Label } from "../../../components/ui/label";
+import { Icons } from "../../../components/ui/iconst";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
   loginWithGoogle: () => void;

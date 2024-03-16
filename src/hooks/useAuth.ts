@@ -1,5 +1,9 @@
 import { useDispatch, useSelector } from "react-redux";
-import { selectAuth, setError, setUser } from "../lib/features/auth/authSlice";
+import {
+  selectAuth,
+  setError,
+  setUser as setUserAction,
+} from "../lib/features/auth/authSlice";
 import { auth } from "../../firebase.config";
 import {
   User as FirebaseUser,
@@ -9,19 +13,32 @@ import {
   signOut,
   signInWithPopup,
 } from "firebase/auth";
-import User from "../models/User";
-
-const firebaseUserToUser = (user: FirebaseUser): User => ({
-  userId: user.uid,
-  email: user.email || "",
-  token: user.refreshToken || "",
-  displayName: user.displayName || "",
-  profilePictureUrl: user.photoURL || "",
-});
+import User from "../models/user";
+import axios from "axios";
 
 export default function useAuth() {
   const dispatch = useDispatch();
   const { user, loading, error } = useSelector(selectAuth);
+
+  const firebaseUserToUser = (user?: FirebaseUser | null): User | null =>
+    user
+      ? {
+          userId: user.uid,
+          email: user.email || "",
+          token: user.refreshToken || "",
+          displayName: user.displayName || "",
+          photoURL: user.photoURL || "",
+          role: "user",
+        }
+      : null;
+
+  const setUser = async (firebaseUser: FirebaseUser | null) => {
+    const user = firebaseUserToUser(firebaseUser);
+    const userFromDB = await axios.post<User>("api/user/confirm", {
+      user: user,
+    });
+    dispatch(setUserAction(userFromDB.data));
+  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -30,7 +47,7 @@ export default function useAuth() {
         email,
         password
       );
-      dispatch(setUser(firebaseUserToUser(userCredentials.user)));
+      await setUser(userCredentials.user);
     } catch (error: any) {
       dispatch(setError(error.message));
     }
@@ -40,17 +57,24 @@ export default function useAuth() {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      dispatch(setUser(firebaseUserToUser(result.user)));
+      await setUser(result.user);
     } catch (error: any) {
-      debugger;
       dispatch(setError(error.message));
     }
   };
 
   const logout = async () => {
     await signOut(auth);
-    dispatch(setUser(null));
+    dispatch(setUserAction(null));
   };
 
-  return { user, loading, error, login, loginWithGoogle, logout };
+  return {
+    user,
+    loading,
+    error,
+    login,
+    loginWithGoogle,
+    logout,
+    firebaseUserToUser,
+  };
 }
