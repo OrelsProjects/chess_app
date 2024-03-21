@@ -62,7 +62,7 @@ export default function AuthProvider({
       if (pathname !== "/login") {
         router.push("/login");
       }
-    } else if (pathname === "/login") {
+    } else if (pathname === "/login" || pathname === "/") {
       router.push("/home");
     }
   }, [state, loadingAuth]);

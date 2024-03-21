@@ -4,6 +4,8 @@ import "./globals.css";
 import "../../firebase.config";
 import StoreProvider from "./providers/StoreProvider";
 import AuthProvider from "./providers/AuthProvider";
+import APIProvider from "./providers/ApiProvider";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +25,10 @@ export default function RootLayout({ children, locale }: RootLayoutProps) {
       <body className={inter.className}>
         <StoreProvider>
           <AuthProvider>
-            <div className="p-4">{children}</div>
+            <APIProvider>
+              <div className="p-4">{children}</div>
+            </APIProvider>
+            <Toaster />
           </AuthProvider>
         </StoreProvider>
       </body>

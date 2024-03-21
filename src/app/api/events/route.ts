@@ -1,15 +1,26 @@
-import jwt from "jsonwebtoken";
+import formidable from "formidable";
+import fs from "fs";
+import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "../../../_requests/user";
-import { NextResponse } from "next/server";
 import { createEvent } from "../../../_requests/event";
-import { ChessEvent } from "../../../models/event";
+import { CreateChessEvent } from "../../../models/chessEvent";
+import { uploadEventImage } from "../../../_requests/files";
 
-export async function POST(req: Request) {
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export async function POST(req: NextRequest) {
   let responseBody: any = {};
   let status = 200;
   try {
-    const body = await req.json();
-    const event = body.event as ChessEvent;
+    const formData = await req.formData();
+    const eventImage: File = formData.get("file") as File;
+    const event = JSON.parse(
+      formData.get("event")?.toString() ?? "{}"
+    ) as CreateChessEvent;
     const userId = req.headers.get("X-User-Id") as string;
     const token = req.headers.get("Authorization") as string;
     const user = await getUser(userId, token);
@@ -17,8 +28,19 @@ export async function POST(req: Request) {
       status = 401;
       responseBody = { error: "Unauthorized" };
     } else {
-      responseBody = await createEvent(event);
+      let imagePath: string | undefined = undefined;
+      if (eventImage) {
+        imagePath = await uploadEventImage(eventImage);
+      }
+
+      responseBody = await createEvent({
+        ...event,
+        image: imagePath,
+      });
     }
-  } catch (err) {}
+  } catch (err) {
+    status = 500;
+    responseBody = { error: "Internal Server Error" };
+  }
   return NextResponse.json({ ...responseBody }, { status });
 }

@@ -9,3 +9,5 @@ export interface ChessEvent {
   rated?: boolean;
   ratedFide?: boolean;
 }
+
+export type CreateChessEvent = Omit<ChessEvent, "id"> & { imageFile: File | null };
