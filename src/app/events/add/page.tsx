@@ -5,8 +5,12 @@ import AddEventForm from "../../../components/forms/addEventForm";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { CreateChessEvent } from "../../../models/chessEvent";
+import Table from "../../../components/table/table";
+import useChessEvents from "../../../hooks/useChessEvents";
 
 export default function EventsAddPage() {
+  const { events } = useChessEvents();
+
   const onSubmit = async (event: CreateChessEvent) => {
     const formData = new FormData();
     if (event.imageFile) {
@@ -35,6 +39,7 @@ export default function EventsAddPage() {
   return (
     <div>
       <AddEventForm onSubmit={onSubmit} />
+      <Table events={events} />
     </div>
   );
 }

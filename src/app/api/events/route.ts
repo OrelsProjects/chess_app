@@ -1,8 +1,6 @@
-import formidable from "formidable";
-import fs from "fs";
 import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "../../../_requests/user";
-import { createEvent } from "../../../_requests/event";
+import { GetEvents, createEvent } from "../../../_requests/event";
 import { CreateChessEvent } from "../../../models/chessEvent";
 import { uploadEventImage } from "../../../_requests/files";
 
@@ -43,4 +41,17 @@ export async function POST(req: NextRequest) {
     responseBody = { error: "Internal Server Error" };
   }
   return NextResponse.json({ ...responseBody }, { status });
+}
+
+export async function GET(_: NextRequest) {
+  try {
+    const events = await GetEvents();
+    return NextResponse.json([...events], { status: 200 });
+  } catch (err) {
+    console.log(err);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }

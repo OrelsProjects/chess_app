@@ -6,6 +6,7 @@ import StoreProvider from "./providers/StoreProvider";
 import AuthProvider from "./providers/AuthProvider";
 import APIProvider from "./providers/ApiProvider";
 import { Toaster } from "react-hot-toast";
+import DataProvider from "./providers/DataProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,7 +27,9 @@ export default function RootLayout({ children, locale }: RootLayoutProps) {
         <StoreProvider>
           <AuthProvider>
             <APIProvider>
-              <div className="p-4">{children}</div>
+              <DataProvider>
+                <div className="p-4">{children}</div>
+              </DataProvider>
             </APIProvider>
             <Toaster />
           </AuthProvider>
