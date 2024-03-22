@@ -10,6 +10,7 @@ import useAuth from "../../hooks/useAuth";
 import { usePathname, useRouter } from "next/navigation";
 import User from "../../models/user";
 import axios from "axios";
+import { Loading } from "../../components/ui/loading";
 
 export default function AuthProvider({
   children,
@@ -26,6 +27,7 @@ export default function AuthProvider({
   const setUserData = async (user: User | null) => {
     if (loading.current) return;
     loading.current = true;
+
     if (!user) {
       dispatch(setUser(null));
       return;
@@ -39,6 +41,8 @@ export default function AuthProvider({
     } catch (error) {
       console.error("Error setting user data", error);
       dispatch(setUser(null));
+    } finally {
+      loading.current = false;
     }
   };
 
@@ -66,6 +70,12 @@ export default function AuthProvider({
       router.push("/home");
     }
   }, [state, loadingAuth]);
-
+  if (loadingAuth) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center">
+        <Loading className="w-10 h-10" />
+      </div>
+    );
+  }
   return <div>{children}</div>;
 }

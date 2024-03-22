@@ -5,15 +5,17 @@ import _ from "lodash";
 
 export type AuthStateType = "anonymous" | "authenticated" | "unauthenticated";
 
-interface AuthState {
+export interface AuthState {
   user: User | null;
+  isAdmin: boolean;
   state: AuthStateType;
   loading: boolean;
   error: string | null;
 }
 
-const initialState: AuthState = {
+export const initialState: AuthState = {
   user: null,
+  isAdmin: false,
   state: "unauthenticated",
   loading: true,
   error: null,
@@ -33,6 +35,7 @@ const authSlice = createSlice({
         return;
       }
       state.user = action.payload;
+      state.isAdmin = action.payload?.role === "admin";
       state.loading = false;
       state.state = action.payload ? "authenticated" : "unauthenticated";
     },

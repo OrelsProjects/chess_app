@@ -1,44 +1,70 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "../../../_requests/user";
-import { GetEvents, createEvent } from "../../../_requests/event";
-import { CreateChessEvent } from "../../../models/chessEvent";
-import { uploadEventImage } from "../../../_requests/files";
+import {
+  GetEvents,
+  createEvent,
+  deleteEvent,
+  updateEvent,
+} from "../../../_requests/event";
+import { ChessEvent } from "../../../models/chessEvent";
+import {
+  removeEventImage as deleteEventImage,
+  uploadEventImage,
+} from "../../../_requests/files";
+import { UnauthorizedError } from "../../../models/errors/UnauthorizedError";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+async function validateRequest(req: NextRequest) {
+  const userId = req.headers.get("X-User-Id") as string;
+  const token = req.headers.get("Authorization") as string;
+  const user = await getUser(userId, token);
+  if (user.role !== "admin") {
+    throw new UnauthorizedError();
+  }
+}
+
+async function getEventData(req: NextRequest): Promise<{
+  event?: ChessEvent;
+  imageFile?: File;
+}> {
+  let event: ChessEvent | undefined = undefined;
+  let imageFile: File | undefined = undefined;
+  try {
+    const formData = await req.formData();
+    imageFile = formData?.get("file") as File;
+    event = JSON.parse(formData.get("event")?.toString() ?? "{}") as ChessEvent;
+  } catch (e) {
+    const body = await req.json();
+    event = body.event;
+  }
+  return { event, imageFile };
+}
 
 export async function POST(req: NextRequest) {
   let responseBody: any = {};
   let status = 200;
   try {
-    const formData = await req.formData();
-    const eventImage: File = formData.get("file") as File;
-    const event = JSON.parse(
-      formData.get("event")?.toString() ?? "{}"
-    ) as CreateChessEvent;
-    const userId = req.headers.get("X-User-Id") as string;
-    const token = req.headers.get("Authorization") as string;
-    const user = await getUser(userId, token);
-    if (user.role !== "admin") {
-      status = 401;
-      responseBody = { error: "Unauthorized" };
-    } else {
-      let imagePath: string | undefined = undefined;
-      if (eventImage) {
-        imagePath = await uploadEventImage(eventImage);
-      }
-
-      responseBody = await createEvent({
-        ...event,
-        image: imagePath,
-      });
+    await validateRequest(req);
+    const eventData = await getEventData(req);
+    let imagePath: string | undefined = undefined;
+    if (!eventData.event) {
+      throw new Error("No event data");
     }
+    if (eventData.imageFile) {
+      imagePath = await uploadEventImage(eventData.imageFile);
+    }
+    const { id, ...eventDataNoId } = eventData.event;
+    responseBody = await createEvent({
+      ...eventDataNoId,
+      image: imagePath,
+    });
   } catch (err) {
-    status = 500;
-    responseBody = { error: "Internal Server Error" };
+    console.error(err);
+    if (err instanceof UnauthorizedError) {
+      status = 401;
+    } else {
+      status = 500;
+      responseBody = { error: "Internal Server Error" };
+    }
   }
   return NextResponse.json({ ...responseBody }, { status });
 }
@@ -48,10 +74,68 @@ export async function GET(_: NextRequest) {
     const events = await GetEvents();
     return NextResponse.json([...events], { status: 200 });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
     );
   }
+}
+
+export async function PATCH(req: NextRequest) {
+  let responseBody: any = {};
+  let status = 200;
+  try {
+    await validateRequest(req);
+
+    const eventData = await getEventData(req);
+    if (eventData && eventData.event) {
+      let newImagePath = eventData.event?.image;
+      if (eventData.imageFile) {
+        newImagePath = await uploadEventImage(eventData.imageFile);
+        await deleteEventImage(eventData.event?.image);
+      }
+      responseBody = await updateEvent({
+        ...eventData.event,
+        image: newImagePath,
+      });
+    } else {
+      throw new Error("No event data");
+    }
+  } catch (err) {
+    console.error(err);
+    if (err instanceof UnauthorizedError) {
+      status = 401;
+    } else {
+      status = 500;
+      responseBody = { error: "Internal Server Error" };
+    }
+  }
+  return NextResponse.json({ ...responseBody }, { status });
+}
+
+export async function DELETE(req: NextRequest) {
+  let status = 200;
+  try {
+    await validateRequest(req);
+
+    const eventData = await getEventData(req);
+    if (!eventData.event) {
+      throw new Error("No event data");
+    }
+    deleteEvent(eventData.event.id);
+    // try {
+    //   await deleteEventImage(eventData.event.image);
+    // } catch (e) {
+    //   console.error(e);
+    // }
+  } catch (err) {
+    console.error(err);
+    if (err instanceof UnauthorizedError) {
+      status = 401;
+    } else {
+      status = 500;
+    }
+  }
+  return NextResponse.json({}, { status });
 }

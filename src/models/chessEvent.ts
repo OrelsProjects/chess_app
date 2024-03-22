@@ -10,4 +10,7 @@ export interface ChessEvent {
   ratedFide?: boolean;
 }
 
-export type CreateChessEvent = Omit<ChessEvent, "id"> & { imageFile: File | null };
+type ChessEventImage = { imageFile: File | null };
+
+export type CreateChessEvent = Omit<ChessEvent, "id"> & ChessEventImage;
+export type UpdateChessEvent = ChessEvent & ChessEventImage;

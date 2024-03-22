@@ -7,13 +7,15 @@ export const chessEventConverter: FirestoreDataConverter<ChessEvent> = {
   },
   fromFirestore(snapshot, options): ChessEvent {
     const data = snapshot.data(options);
-    return {
+    const { isDeleted, ...rest } = data;
+     return {
       id: snapshot.id as string,
       name: data.name as string,
       date: data.date as string,
       location: data.location as string,
       description: data.description as string,
-      ...data,
+      image: data.image as string,
+      ...rest,
     };
   },
 };

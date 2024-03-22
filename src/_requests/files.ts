@@ -7,6 +7,17 @@ export const storage = admin.storage();
 
 const eventImageBucketName = "event-images"; // Your bucket name
 
+export const removeEventImage = async (url?: string): Promise<void> => {
+  const bucket = storage.bucket();
+  const parsedUrl = new URL(url ?? "");
+
+  let fileName = parsedUrl.pathname.substring(1).split("/").pop();
+  if (fileName) {
+    const fileRef = bucket.file(`${eventImageBucketName}/${fileName}`);
+    await fileRef.delete();
+  }
+};
+
 export const uploadEventImage = async (file: File): Promise<string> => {
   return new Promise(async (resolve, reject) => {
     // file to blob

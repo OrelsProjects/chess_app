@@ -1,7 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import { useFormik } from "formik";
-import { ChessEvent, CreateChessEvent } from "../../models/chessEvent";
+import {
+  ChessEvent,
+  CreateChessEvent,
+  UpdateChessEvent,
+} from "../../models/chessEvent";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
@@ -10,40 +15,75 @@ import Image from "next/image";
 import { FaArrowLeft } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
-interface AddEventFormProps {
-  initialValues?: ChessEvent;
-  onSubmit: (event: CreateChessEvent) => any;
+interface UpdateEventFormProps extends EventFormProps {
+  onSubmitUpdate?: (event: UpdateChessEvent) => any;
+  event?: ChessEvent;
 }
 
-const AddEventForm: React.FC<AddEventFormProps> = ({
+interface EventFormProps {
+  initialValues?: ChessEvent;
+  onSubmit?: (event: CreateChessEvent) => any;
+}
+
+const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
   initialValues: externalInitialValues,
   onSubmit,
+  onSubmitUpdate,
+  event,
 }) => {
   const router = useRouter();
   const [eventImage, setEventImage] = React.useState<File | null>(null);
   const formik = useFormik({
     initialValues: externalInitialValues ?? {
-      id: "",
-      name: "orel",
-      description: "desc",
-      date: "",
-      price: 0,
-      image: "",
-      location: "hi",
-      rated: false,
-      ratedFide: false,
+      id: event?.id ?? "",
+      name: event?.name ?? "",
+      description: event?.description ?? "",
+      date: event?.date ?? "",
+      price: event?.price ?? 0,
+      image: event?.image ?? "",
+      location: event?.location ?? "",
+      rated: event?.rated ?? false,
+      ratedFide: event?.ratedFide ?? false,
     },
+
     onSubmit: (values: ChessEvent) => {
-      if (!eventImage) {
+      if (!isEdit && !eventImage) {
         return;
       }
-      const event: CreateChessEvent = {
-        ...values,
-        imageFile: eventImage,
-      };
-      onSubmit(event);
+      if (isEdit) {
+        debugger;
+        const updateEvent = {
+          ...values,
+          imageFile: eventImage,
+        };
+        onSubmitUpdate?.(updateEvent);
+      } else {
+        const createEvent: CreateChessEvent = {
+          ...values,
+          imageFile: eventImage,
+        };
+        onSubmit?.(createEvent);
+      }
     },
   });
+
+  const isEdit = useMemo(() => !!event, [event]);
+
+  useEffect(() => {
+    if (isEdit && event) {
+      formik.setValues({
+        id: event.id,
+        name: event.name,
+        description: event.description,
+        date: event.date,
+        price: event.price,
+        image: event.image,
+        location: event.location,
+        rated: event.rated,
+        ratedFide: event.ratedFide,
+      });
+    }
+  }, [event]);
 
   return (
     <div>
@@ -123,12 +163,15 @@ const AddEventForm: React.FC<AddEventFormProps> = ({
           <Input
             id="image"
             type="file"
+            accept="image/*"
             name="image"
             style={{ display: "none" }}
             onChange={(event) => {
               if (event.currentTarget.files && event.currentTarget.files[0]) {
                 const path = URL.createObjectURL(event.currentTarget.files[0]);
-                formik.setFieldValue("image", path);
+                if (!isEdit) {
+                  formik.setFieldValue("image", path);
+                }
                 setEventImage(event.currentTarget.files[0]);
               }
             }}
@@ -155,6 +198,10 @@ const AddEventForm: React.FC<AddEventFormProps> = ({
           <Checkbox
             id="rated"
             className="mr-1"
+            checked={formik.values.rated}
+            onCheckedChange={(checked) => {
+              formik.setFieldValue("rated", checked);
+            }}
             {...formik.getFieldProps("rated")}
           />
           <Label htmlFor="rated">מדורג</Label>
@@ -168,6 +215,10 @@ const AddEventForm: React.FC<AddEventFormProps> = ({
           <Checkbox
             id="ratedFide"
             className="mr-1"
+            checked={formik.values.ratedFide}
+            onCheckedChange={(checked) => {
+              formik.setFieldValue("ratedFide", checked);
+            }}
             {...formik.getFieldProps("ratedFide")}
           />
           <Label htmlFor="ratedFide">מדורג פיד״ה</Label>
@@ -176,10 +227,10 @@ const AddEventForm: React.FC<AddEventFormProps> = ({
           )}
         </div>
 
-        <Button type="submit">צור אירוע</Button>
+        <Button type="submit">{event ? "עדכן" : "צור"} אירוע</Button>
       </form>
     </div>
   );
 };
 
-export default AddEventForm;
+export default EventForm;
