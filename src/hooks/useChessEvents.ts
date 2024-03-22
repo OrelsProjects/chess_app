@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectChessEvents } from "../lib/features/chessEvents/chessEventsSlice";
 import {
-  ChessEvent,
+  ChessEvenData as ChessEventData,
   CreateChessEvent,
   UpdateChessEvent,
 } from "../models/chessEvent";
@@ -12,20 +12,34 @@ import {
   deleteEvent as deleteEventAction,
   updateEvent as updateEventAction,
   addEvent as addEventAction,
+  addParticipant as addParticipantAction,
+  removeParticipant as removeParticipantAction,
 } from "../lib/features/chessEvents/chessEventsSlice";
+import { selectAuth } from "../lib/features/auth/authSlice";
+import { ChessEventParticipant } from "../models/chessEventParticipant";
 
 const useChessEvents = () => {
   const dispatch = useDispatch();
+  const { user } = useSelector(selectAuth);
   const { events: eventsRedux } = useSelector(selectChessEvents);
 
   const [loading, setLoading] = useState(false);
-  const [events, setEvents] = useState<ChessEvent[]>([]);
+  const [events, setEvents] = useState<ChessEventData[]>([]);
 
   useEffect(() => {
     setEvents(eventsRedux);
   }, [eventsRedux]);
 
-  const getEvent = (id: string): ChessEvent | undefined => {
+  const isRegisteredToEvent = useCallback(
+    (event: ChessEventData) => {
+      return event.participants?.some(
+        (participant) => participant.userId === user?.userId
+      );
+    },
+    [user]
+  );
+
+  const getEvent = (id: string): ChessEventData | undefined => {
     return eventsRedux.find((event) => event.id === id);
   };
 
@@ -34,7 +48,7 @@ const useChessEvents = () => {
     setLoading(true);
 
     try {
-      const events = await axios.get<ChessEvent[]>("/api/events");
+      const events = await axios.get<ChessEventData[]>("/api/events");
       dispatch(setEventsAction(events.data));
     } catch (e) {
       console.error(e);
@@ -43,7 +57,25 @@ const useChessEvents = () => {
     }
   };
 
-  const deleteEvent = async (event: ChessEvent) => {
+  const unregisterFromEvent = async (event: ChessEventData) => {
+    if (loading) return;
+    await axios.delete(`/api/events/${event.id}/unregister/${user?.userId}`);
+    dispatch(
+      removeParticipantAction({ eventId: event.id, userId: user?.userId ?? "" })
+    );
+  };
+
+  const registerToEvent = async (chessEvent: ChessEventData) => {
+    if (loading) return;
+    const eventParticipant: ChessEventParticipant = {
+      eventId: chessEvent.id,
+      userId: user?.userId ?? "",
+    };
+    await axios.patch(`/api/events/${chessEvent.id}/register/${user?.userId}`);
+    dispatch(addParticipantAction(eventParticipant));
+  };
+
+  const deleteEvent = async (event: ChessEventData) => {
     if (loading) return;
     setLoading(true);
 
@@ -71,11 +103,15 @@ const useChessEvents = () => {
       }
       formData.append("event", JSON.stringify(event));
 
-      const response = await axios.patch<ChessEvent>("api/events", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.patch<ChessEventData>(
+        "api/events",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       dispatch(updateEventAction(response.data));
     } finally {
       setLoading(false);
@@ -94,11 +130,15 @@ const useChessEvents = () => {
       }
       formData.append("event", JSON.stringify(event));
 
-      const newEvent = await axios.post<ChessEvent>("api/events", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const newEvent = await axios.post<ChessEventData>(
+        "api/events",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       dispatch(addEventAction(newEvent.data));
     } catch (e) {
       console.error(e);
@@ -110,11 +150,14 @@ const useChessEvents = () => {
   return {
     events,
     loading,
+    isRegisteredToEvent,
     getEvent,
     loadChessEvents,
+    registerToEvent,
     deleteEvent,
     updateEvent,
     createEvent,
+    unregisterFromEvent,
   };
 };
 

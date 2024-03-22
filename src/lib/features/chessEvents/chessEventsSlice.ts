@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
-import User from "../../../models/user";
-import { ChessEvent } from "../../../models/chessEvent";
+import { ChessEvenData, ChessEvent } from "../../../models/chessEvent";
+import { ChessEventParticipant } from "../../../models/chessEventParticipant";
 
 interface ChessEventsState {
-  events: ChessEvent[];
+  events: ChessEvenData[];
   loading: boolean;
   error: string | null;
 }
@@ -19,11 +19,11 @@ const chessEventsSlice = createSlice({
   name: "chessEvents",
   initialState,
   reducers: {
-    setEvents: (state, action: PayloadAction<ChessEvent[]>) => {
+    setEvents: (state, action: PayloadAction<ChessEvenData[]>) => {
       state.events = action.payload;
       state.loading = false;
     },
-    addEvent: (state, action: PayloadAction<ChessEvent>) => {
+    addEvent: (state, action: PayloadAction<ChessEvenData>) => {
       state.events = [...state.events, action.payload];
       state.loading = false;
     },
@@ -33,10 +33,33 @@ const chessEventsSlice = createSlice({
       );
       state.loading = false;
     },
-    updateEvent: (state, action: PayloadAction<ChessEvent>) => {
+    updateEvent: (state, action: PayloadAction<ChessEvenData>) => {
       state.events = state.events.map((event) =>
-        event.id === action.payload.id ? action.payload : event
+        event.id === action.payload.id ? { ...event, ...action.payload } : event
       );
+      state.loading = false;
+    },
+    addParticipant: (state, action: PayloadAction<ChessEventParticipant>) => {
+      const event = state.events.find(
+        (event) => event.id === action.payload.eventId
+      );
+      if (event) {
+        event.participants = [...(event.participants ?? []), action.payload];
+      }
+      state.loading = false;
+    },
+    removeParticipant: (
+      state,
+      action: PayloadAction<ChessEventParticipant>
+    ) => {
+      const event = state.events.find(
+        (event) => event.id === action.payload.eventId
+      );
+      if (event) {
+        event.participants = event.participants?.filter(
+          (participant) => participant.userId !== action.payload.userId
+        );
+      }
       state.loading = false;
     },
     setError: (state, action: PayloadAction<string | null>) => {
@@ -47,8 +70,15 @@ const chessEventsSlice = createSlice({
   },
 });
 
-export const { setEvents, deleteEvent, updateEvent, addEvent, setError } =
-  chessEventsSlice.actions;
+export const {
+  setEvents,
+  deleteEvent,
+  updateEvent,
+  addEvent,
+  addParticipant,
+  removeParticipant,
+  setError,
+} = chessEventsSlice.actions;
 
 export const selectChessEvents = (state: RootState): ChessEventsState =>
   state.chessEvents;

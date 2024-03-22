@@ -6,12 +6,12 @@ import {
   deleteEvent,
   updateEvent,
 } from "../../../_requests/event";
-import { ChessEvent } from "../../../models/chessEvent";
 import {
   removeEventImage as deleteEventImage,
   uploadEventImage,
 } from "../../../_requests/files";
 import { UnauthorizedError } from "../../../models/errors/UnauthorizedError";
+import { ChessEvenData } from "../../../models/chessEvent";
 
 async function validateRequest(req: NextRequest) {
   const userId = req.headers.get("X-User-Id") as string;
@@ -23,15 +23,17 @@ async function validateRequest(req: NextRequest) {
 }
 
 async function getEventData(req: NextRequest): Promise<{
-  event?: ChessEvent;
+  event?: ChessEvenData;
   imageFile?: File;
 }> {
-  let event: ChessEvent | undefined = undefined;
+  let event: ChessEvenData | undefined = undefined;
   let imageFile: File | undefined = undefined;
   try {
     const formData = await req.formData();
     imageFile = formData?.get("file") as File;
-    event = JSON.parse(formData.get("event")?.toString() ?? "{}") as ChessEvent;
+    event = JSON.parse(
+      formData.get("event")?.toString() ?? "{}"
+    ) as ChessEvenData;
   } catch (e) {
     const body = await req.json();
     event = body.event;
@@ -52,7 +54,7 @@ export async function POST(req: NextRequest) {
     if (eventData.imageFile) {
       imagePath = await uploadEventImage(eventData.imageFile);
     }
-    const { id, ...eventDataNoId } = eventData.event;
+    const { id, participants, ...eventDataNoId } = eventData.event;
     responseBody = await createEvent({
       ...eventDataNoId,
       image: imagePath,

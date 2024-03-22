@@ -4,17 +4,24 @@ import Image from "next/image";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../lib/features/auth/authSlice";
 import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
 
 interface TableItemProps {
   event: ChessEvent;
   onDelete?: (event: ChessEvent) => void;
   onEdit?: (event: ChessEvent) => void;
+  onRegister?: (event: ChessEvent) => void;
+  isRegistered?: boolean;
+  isAdmin?: boolean;
 }
 
-const TableItem: React.FC<TableItemProps> = ({ event, onDelete, onEdit }) => {
-  const { isAdmin } = useSelector(selectAuth);
-
+const TableItem: React.FC<TableItemProps> = ({
+  event,
+  onDelete,
+  onEdit,
+  onRegister,
+  isRegistered,
+  isAdmin,
+}) => {
   const AdminButtons: React.FC = () => {
     return (
       <div className="flex gap-4 items-center">
@@ -37,8 +44,13 @@ const TableItem: React.FC<TableItemProps> = ({ event, onDelete, onEdit }) => {
   };
 
   const UserButtons: React.FC = () => {
-    return <Button>הירשם</Button>;
+    return (
+      <Button onClick={() => onRegister?.(event)}>
+        {isRegistered ? "בטל רישום" : "הירשם"}
+      </Button>
+    );
   };
+
   return (
     <div className="flex gap-4 items-center">
       <Image
@@ -51,7 +63,8 @@ const TableItem: React.FC<TableItemProps> = ({ event, onDelete, onEdit }) => {
         <div>{event.name}</div>
         <div>{event.date}</div>
       </div>
-      {isAdmin ? <AdminButtons /> : <UserButtons />}
+      {isAdmin && <AdminButtons />}
+      <UserButtons />
     </div>
   );
 };

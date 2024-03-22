@@ -14,6 +14,7 @@ import { Checkbox } from "../ui/checkbox";
 import Image from "next/image";
 import { FaArrowLeft } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import DropdownEventType from "../ui/custom/dropdownEventType";
 
 interface UpdateEventFormProps extends EventFormProps {
   onSubmitUpdate?: (event: UpdateChessEvent) => any;
@@ -39,7 +40,8 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
       name: event?.name ?? "",
       description: event?.description ?? "",
       date: event?.date ?? "",
-      price: event?.price ?? 0,
+      price: event?.price,
+      type: event?.type ?? "rapid",
       image: event?.image ?? "",
       location: event?.location ?? "",
       rated: event?.rated ?? false,
@@ -51,7 +53,6 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
         return;
       }
       if (isEdit) {
-        debugger;
         const updateEvent = {
           ...values,
           imageFile: eventImage,
@@ -67,6 +68,8 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
     },
   });
 
+  console.log(formik.values);
+
   const isEdit = useMemo(() => !!event, [event]);
 
   useEffect(() => {
@@ -81,6 +84,7 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
         location: event.location,
         rated: event.rated,
         ratedFide: event.ratedFide,
+        type: event.type,
       });
     }
   }, [event]);
@@ -160,6 +164,10 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
               className="rounded-md shadow-lg"
             />
           )}
+          <DropdownEventType
+            onChange={(value) => formik.setFieldValue("type", value)}
+            value={formik.values.type}
+          />
           <Input
             id="image"
             type="file"
