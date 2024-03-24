@@ -1,5 +1,4 @@
 import admin, { ServiceAccount } from "firebase-admin";
-import serviceAccountKey from "./serviceAccountKey.json";
 
 const serviceAccount = {
   type: process.env.TYPE,
