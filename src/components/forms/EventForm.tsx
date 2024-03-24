@@ -40,6 +40,7 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
       name: event?.name ?? "",
       description: event?.description ?? "",
       date: event?.date ?? "",
+      time: event?.time ?? "",
       price: event?.price,
       type: event?.type ?? "rapid",
       image: event?.image ?? "",
@@ -79,6 +80,7 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
         name: event.name,
         description: event.description,
         date: event.date,
+        time: event.time,
         price: event.price,
         image: event.image,
         location: event.location,
@@ -136,6 +138,19 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
           />
           {formik.touched.date && formik.errors.date && (
             <div>{formik.errors.date}</div>
+          )}
+        </div>
+        {/* time 24hrs */}
+        <div>
+          <Label htmlFor="time">שעה</Label>
+          <Input
+            id="time"
+            type="time"
+            {...formik.getFieldProps("time")}
+            required
+          />
+          {formik.touched.time && formik.errors.time && (
+            <div>{formik.errors.time}</div>
           )}
         </div>
 

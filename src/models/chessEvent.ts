@@ -20,6 +20,7 @@ export interface ChessEvent {
   name: string;
   description: string;
   date: string;
+  time: string;
   price?: number;
   image?: string;
   location?: string;

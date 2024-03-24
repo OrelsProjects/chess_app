@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 
 export default function EventsAddPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { updateEvent, getEvent } = useChessEvents();
+  const { updateEvent, getEvent, deleteEvent } = useChessEvents();
   const [chessEvent, setChessEvent] = React.useState<ChessEvent | undefined>(
     undefined
   );
@@ -33,9 +33,28 @@ export default function EventsAddPage({ params }: { params: { id: string } }) {
     } catch (e) {}
   };
 
+  const onDelete = async (event: ChessEvent) => {
+    try {
+      await toast.promise(deleteEvent(event), {
+        loading: "מוחק אירוע...",
+        success: () => {
+          router.back();
+          return "האירוע נמחק בהצלחה";
+        },
+        error: "שגיאה במחיקת האירוע",
+      });
+    } catch (e) {}
+  };
+
   return (
     <div>
       <EventForm onSubmitUpdate={onSubmit} event={chessEvent} />
+      <div
+        className="text-red-500 cursor-pointer mt-2 text-center"
+        onClick={() => chessEvent && onDelete(chessEvent)}
+      >
+        מחק אירוע
+      </div>
     </div>
   );
 }

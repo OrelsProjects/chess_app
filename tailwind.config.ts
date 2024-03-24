@@ -73,6 +73,14 @@ const config = {
         sans: ["DM Sans", "sans-serif"],
         roboto: ["Roboto", "sans-serif"],
       },
+      // height inehrit
+      height: {
+        inherit: "inherit",
+      },
+      // grid column 0.2, 0.6, 0.2
+      gridTemplateColumns: {
+        "table": "0.25fr 0.7fr 0.05fr",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

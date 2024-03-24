@@ -1,5 +1,5 @@
 import { FirestoreDataConverter } from "firebase/firestore";
-import { ChessEvenData } from "../../models/chessEvent";
+import { ChessEvenData, EventType } from "../../models/chessEvent";
 
 export const chessEventConverter: FirestoreDataConverter<ChessEvenData> = {
   toFirestore(chessEvent: ChessEvenData): any {
@@ -19,6 +19,8 @@ export const chessEventConverter: FirestoreDataConverter<ChessEvenData> = {
       id: snapshot.id as string,
       name: data.name as string,
       date: data.date as string,
+      time: data.time as string,
+      type: data.type as EventType,
       location: data.location as string,
       description: data.description as string,
       image: data.image as string,

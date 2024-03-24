@@ -10,18 +10,14 @@ import { selectAuth } from "../../lib/features/auth/authSlice";
 
 interface TableItemProps {
   events: ChessEvent[];
+  showEventId?: string | null;
 }
 
-const Table: React.FC<TableItemProps> = ({ events }) => {
+const Table: React.FC<TableItemProps> = ({ events, showEventId }) => {
   const router = useRouter();
   const { isAdmin } = useSelector(selectAuth);
-  const {
-    loading,
-    deleteEvent,
-    registerToEvent,
-    unregisterFromEvent,
-    isRegisteredToEvent,
-  } = useChessEvents();
+  const { loading, registerToEvent, unregisterFromEvent, isRegisteredToEvent } =
+    useChessEvents();
 
   const handleOnEdit = (event: ChessEvent) => {
     router.push(`/events/edit/${event.id}`);
@@ -63,10 +59,10 @@ const Table: React.FC<TableItemProps> = ({ events }) => {
               key={`chess-event-in-table-${event.id}`}
               event={event}
               onEdit={handleOnEdit}
-              onDelete={deleteEvent}
               onRegister={handleRegister}
               isRegistered={isRegisteredToEvent(event)}
               isAdmin={isAdmin}
+              show={showEventId === event.id}
             />
           ))
         )}
