@@ -140,7 +140,6 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
             <div>{formik.errors.date}</div>
           )}
         </div>
-        {/* time 24hrs */}
         <div>
           <Label htmlFor="time">שעה</Label>
           <Input
