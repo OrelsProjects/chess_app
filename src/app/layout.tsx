@@ -28,7 +28,9 @@ export default function RootLayout({ children, locale }: RootLayoutProps) {
           <AuthProvider>
             <APIProvider>
               <DataProvider>
-                <div className="p-4">{children}</div>
+                <main>
+                  <div className="p-4">{children}</div>
+                </main>
               </DataProvider>
             </APIProvider>
             <Toaster />

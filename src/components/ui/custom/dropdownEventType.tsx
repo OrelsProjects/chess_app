@@ -21,7 +21,6 @@ export default function DropdownEventType({
   value: EventType;
   onChange: (eventType: EventType) => void;
 }) {
-  console.log(value);
   return (
     <DropdownMenu dir="rtl">
       <DropdownMenuTrigger asChild>

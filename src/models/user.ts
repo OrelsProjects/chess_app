@@ -1,3 +1,5 @@
+export type UserRole = "user" | "admin";
+
 export interface User {
   userId: string;
   email: string;
@@ -7,7 +9,7 @@ export interface User {
   birthDate?: string;
   gender?: string;
   token: string;
-  role: "user" | "admin";
+  role: UserRole;
 }
 
 export default User;

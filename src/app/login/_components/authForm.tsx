@@ -7,6 +7,7 @@ import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { Label } from "../../../components/ui/label";
 import { Icons } from "../../../components/ui/iconst";
+import { useRouter } from "next/navigation";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
   loginWithGoogle: () => void;
@@ -19,7 +20,12 @@ export function UserAuthForm({
   login,
   ...props
 }: UserAuthFormProps) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+
+  const onSignUp = () => {
+    router.push("/register");
+  };
 
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
@@ -44,7 +50,7 @@ export function UserAuthForm({
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
-              Email
+              אימייל
             </Label>
             <Input
               id="email"
@@ -57,7 +63,7 @@ export function UserAuthForm({
             />
             <Input
               id="password"
-              placeholder="Password"
+              placeholder="סיסמא"
               type="password"
               autoCapitalize="none"
               autoComplete="current-password"
@@ -69,8 +75,20 @@ export function UserAuthForm({
             {isLoading && (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             )}
-            Sign In with Email
+            התחבר עם אימייל
           </Button>
+          <div className="flex flex-row justify-start items-center gap-1 text-priamry text-base">
+            אין לך משתמש?
+            <Button
+              variant="link"
+              type="button"
+              disabled={isLoading}
+              onClick={onSignUp}
+              className="p-0"
+            >
+              הירשם
+            </Button>
+          </div>
         </div>
       </form>
       <div className="relative">
@@ -78,9 +96,7 @@ export function UserAuthForm({
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
-          </span>
+          <span className="bg-background px-2 text-muted-foreground">או</span>
         </div>
       </div>
       <Button
@@ -92,9 +108,9 @@ export function UserAuthForm({
         {isLoading ? (
           <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
         ) : (
-          <Icons.gitHub className="mr-2 h-4 w-4" />
+          <Icons.google className="mx-2 h-4 w-4" />
         )}{" "}
-        GitHub
+        גוגל
       </Button>
     </div>
   );

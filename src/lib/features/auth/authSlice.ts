@@ -1,12 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
-import User from "../../../models/user";
 import _ from "lodash";
+import { UserFullData } from "../../../models/types/userFullData";
 
-export type AuthStateType = "anonymous" | "authenticated" | "unauthenticated";
+export type AuthStateType =
+  | "anonymous"
+  | "authenticated"
+  | "unauthenticated"
+  | "registration_required";
 
 export interface AuthState {
-  user: User | null;
+  user: UserFullData | null;
   isAdmin: boolean;
   state: AuthStateType;
   loading: boolean;
@@ -25,7 +29,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<User | null>) => {
+    setUser: (state, action: PayloadAction<UserFullData | null>) => {
       if (
         (_.isEqual(state.user, action.payload) &&
           state.state === "authenticated") ||

@@ -7,6 +7,7 @@ import {
   updateDoc,
   DocumentReference,
   getDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { ChessEvenData, ChessEvent } from "../models/chessEvent";
 import { validateEventExists, eventsCol, getEventDoc } from "./common";
@@ -22,7 +23,7 @@ export const updateEvent = async (
 };
 
 export const deleteEvent = async (id: string): Promise<void> =>
-  await setDoc(getEventDoc(id), { isDeleted: true }, { merge: true });
+  await deleteDoc(getEventDoc(id));
 
 export const unregisterFromEvent = async (
   eventId: string,
@@ -69,7 +70,7 @@ export const createEvent = async (
 ): Promise<ChessEvent> => {
   const doc = getEventDoc();
   const eventData = { ...event, isDeleted: false };
-  await setDoc(doc, eventData);
+  await setDoc(doc, { ...eventData, id: doc.id });
   return {
     ...event,
     id: doc.id,

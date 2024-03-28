@@ -14,7 +14,7 @@ import { UnauthorizedError } from "../../../models/errors/UnauthorizedError";
 import { ChessEvenData } from "../../../models/chessEvent";
 
 async function validateRequest(req: NextRequest) {
-  const userId = req.headers.get("X-User-Id") as string;
+  const userId = req.headers.get("x-user-id") as string;
   const token = req.headers.get("Authorization") as string;
   const user = await getUser(userId, token);
   if (user.role !== "admin") {

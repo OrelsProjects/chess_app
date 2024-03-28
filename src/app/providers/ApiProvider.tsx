@@ -11,7 +11,7 @@ const APIProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (user) {
       axios.defaults.headers.common["Authorization"] = user.token;
-      axios.defaults.headers.common["X-User-Id"] = user.userId;
+      axios.defaults.headers.common["x-user-id"] = user.userId;
       axios.defaults.baseURL = window.location.origin;
     }
     axios.defaults.baseURL = window.location.origin;

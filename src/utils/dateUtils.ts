@@ -22,3 +22,20 @@ export const dateToDayOfTheWeek = (date: string): string => {
   const day = new Date(date).getDay();
   return daysOfTheWeekHebrew[day];
 };
+
+export const toDate = (epochTime: string | number): string => {
+  let timeIntSeconds: any = epochTime;
+  if (typeof epochTime === "string") {
+    timeIntSeconds =
+      epochTime.length > 10
+        ? parseInt(epochTime.substring(0, epochTime.length - 3))
+        : parseInt(epochTime);
+  } else if (typeof epochTime === "number") {
+    if (`${timeIntSeconds}`.length > 10) {
+      timeIntSeconds /= 1000;
+    }
+  } else {
+    throw new Error(`Date not valid in toDate: ${epochTime}`);
+  }
+  return new Date(timeIntSeconds * 1000).toISOString();
+};

@@ -35,5 +35,5 @@ export type CreateChessEvent = Omit<ChessEvent, "id"> & ChessEventImage;
 export type UpdateChessEvent = ChessEvent & ChessEventImage;
 
 export type ChessEvenData = ChessEvent & {
-  participants?: ChessEventParticipant[];
+  participants?: Record<string, ChessEventParticipant>;
 };
