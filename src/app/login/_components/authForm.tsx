@@ -8,10 +8,11 @@ import { Button } from "../../../components/ui/button";
 import { Label } from "../../../components/ui/label";
 import { Icons } from "../../../components/ui/iconst";
 import { useRouter } from "next/navigation";
+import { useFormik } from "formik";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
-  loginWithGoogle: () => void;
-  login: (email: string, password: string) => void;
+  loginWithGoogle: () => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
 }
 
 export function UserAuthForm({
@@ -23,19 +24,31 @@ export function UserAuthForm({
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    onSubmit: async (values) => {
+      onSubmit({ username: values.email, password: values.password });
+    },
+  });
+
   const onSignUp = () => {
     router.push("/register");
   };
 
-  async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault();
-    const form = event.currentTarget as HTMLFormElement;
-    const formData = new FormData(form);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+  async function onSubmit({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }) {
     setIsLoading(true);
     try {
-      login(email, password);
+      debugger;
+      await login(username, password);
     } catch (error) {
       console.error("Login failed:", error);
       // Handle the error, e.g., show a message to the user
@@ -46,7 +59,7 @@ export function UserAuthForm({
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={formik.handleSubmit}>
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
@@ -60,6 +73,8 @@ export function UserAuthForm({
               autoComplete="email"
               autoCorrect="off"
               disabled={isLoading}
+              value={formik.values.email}
+              onChange={formik.handleChange}
             />
             <Input
               id="password"
@@ -69,9 +84,11 @@ export function UserAuthForm({
               autoComplete="current-password"
               autoCorrect="off"
               disabled={isLoading}
+              value={formik.values.password}
+              onChange={formik.handleChange}
             />
           </div>
-          <Button disabled={isLoading}>
+          <Button type="submit" disabled={isLoading}>
             {isLoading && (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             )}

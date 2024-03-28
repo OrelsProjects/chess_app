@@ -44,7 +44,7 @@ export default function Register() {
   const router = useRouter();
   const { user, register, updateUserPlayerDetails } = useAuth();
   const [player, setPlayer] = React.useState<PlayerDetails | null>(null);
-  const [stage, setStage] = React.useState<Stage>("player_number");
+  const [stage, setStage] = React.useState<Stage>("username_password");
   const [isPlayerNumber, setIsPlayerNumber] = React.useState<boolean>(false);
   const loadingPlayerFetch = useRef(false);
 
@@ -54,6 +54,12 @@ export default function Register() {
       console.log(values);
     },
   });
+
+  useEffect(() => {
+    if (user) {
+      setStage("player_number");
+    }
+  }, [user]);
 
   const createUserPlayerDetails = async () => {
     try {
@@ -78,25 +84,30 @@ export default function Register() {
         success: "פרטים נשמרו",
         error: "לא הצלחנו לשמור את הפרטים",
       });
+      debugger;
       router.push("/home");
     } catch (e: any) {}
   };
 
   const handleOnRegisterUsernamePassword = async () => {
-    if (formik.values.password !== formik.values.verifiedPassword) {
-      toast.error("הסיסמאות לא תואמות");
-      formik.setErrors({
-        password: "הסיסמאות לא תואמות",
-        verifiedPassword: "הסיסמאות לא תואמות",
-      });
-      return;
-    }
+    // if (formik.values.password !== formik.values.verifiedPassword) {
+    //   toast.error("הסיסמאות לא תואמות");
+    //   formik.setErrors({
+    //     password: "הסיסמאות לא תואמות",
+    //     verifiedPassword: "הסיסמאות לא תואמות",
+    //   });
+    //   return;
+    // }
     try {
-      await register(formik.values.username, formik.values.password);
-      await createUserPlayerDetails();
-    } catch (e: any) {
-      toast.error("הרשמה נכשלה");
-    }
+      toast.promise(register(formik.values.username, formik.values.password), {
+        loading: "רק רגע...",
+        success: "נרשמת בהצלחה",
+        error: (e: any) => {
+          debugger;
+          return "";
+        },
+      });
+    } catch (e: any) {}
   };
 
   const nextStage = async (specificStage?: Stage) => {
@@ -121,10 +132,12 @@ export default function Register() {
       setStage("player_number");
     }
     if (stage === "username_password") {
-      setStage("details");
+      debugger;
+      router.push("/login");
     }
     if (stage === "player_number") {
-      router.back();
+      debugger;
+      router.push("/login");
     }
   };
 
@@ -211,7 +224,13 @@ export default function Register() {
         </form>
       )}
       {stage === "details" && (
-        <form onSubmit={formik.handleSubmit} className="flex flex-col gap-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            formik.handleSubmit(e);
+          }}
+          className="flex flex-col gap-4"
+        >
           <Label htmlFor="fullName">שם מלא</Label>
           <Input
             id="fullName"
@@ -332,7 +351,10 @@ export default function Register() {
       {stage === "username_password" && (
         <form
           className="w-full pt-4 flex flex-col gap-4"
-          onSubmit={handleOnRegisterUsernamePassword}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleOnRegisterUsernamePassword();
+          }}
         >
           <Label htmlFor="username">אימייל</Label>
           <Input
@@ -365,9 +387,7 @@ export default function Register() {
             error={formik.errors.verifiedPassword}
             required
           />
-          <Button type="submit" onClick={handleOnRegisterUsernamePassword}>
-            הרשם
-          </Button>
+          <Button type="submit">הרשם</Button>
         </form>
       )}
     </div>

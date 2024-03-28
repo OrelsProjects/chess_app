@@ -50,6 +50,7 @@ export default function useAuth() {
       userFromDB = response.data.user;
       dispatch(setUserAction(userFromDB));
       if (response.data.state === "registration_required") {
+        debugger;
         router.push("/register");
         return;
       }
@@ -99,7 +100,6 @@ export default function useAuth() {
     try {
       const userCredentials: UserCredential =
         await createUserWithEmailAndPassword(auth, email, password);
-      debugger;
       await setUserData(userCredentials.user);
     } catch (error: any) {
       dispatch(setError(error.message));
