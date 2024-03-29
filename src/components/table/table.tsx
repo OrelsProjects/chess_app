@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { ChessEvent } from "../../models/chessEvent";
 import TableItem from "./tableItem";
 import useChessEvents from "../../hooks/useChessEvents";
-import { Loading } from "../ui/loading";
+import Loading from "../ui/loading";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";

@@ -12,7 +12,7 @@ export default function AuthenticationPage() {
 
   const handleContinueRegistration = () => {
     router.push("/register");
-  };
+};
 
   return (
     <>

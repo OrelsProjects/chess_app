@@ -8,7 +8,7 @@ import { auth } from "../../../firebase.config";
 import { selectAuth } from "../../lib/features/auth/authSlice";
 import useAuth from "../../hooks/useAuth";
 import { usePathname, useRouter } from "next/navigation";
-import { Loading } from "../../components/ui/loading";
+import Loading from "../../components/ui/loading";
 
 export default function AuthProvider({
   children,
@@ -52,7 +52,7 @@ export default function AuthProvider({
   if (loadingAuth) {
     return (
       <div className="w-screen h-screen flex items-center justify-center">
-        <Loading className="w-10 h-10" />
+        <Loading className="w-20 h-20" />
       </div>
     );
   }

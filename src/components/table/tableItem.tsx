@@ -52,7 +52,7 @@ const SheetBottomContent = ({
   return (
     <div className="px-4 bg-muted text-foreground absolute w-full h-12 right-0 bottom-0 flex flex-row items-center gap-2 ">
       <div className="text-foreground">מגיע?</div>
-      {!event.isPaymentRequired && !isRegistered ? (
+      {event.isPaymentRequired && !isRegistered ? (
         <AlertDialogPayment onAlreadyPaid={onRegister} event={event}>
           <Button
             variant={isRegistered ? "default" : "outline"}
@@ -124,7 +124,7 @@ const TableItem: React.FC<TableItemProps> = ({
         }}
         className={`text-green-500 w-7 h-7 ${iconsBaseClass} `}
       />
-    ) : !event.isPaymentRequired ? (
+    ) : event.isPaymentRequired ? (
       <AlertDialogPayment onAlreadyPaid={onRegister} event={event}>
         <IoIosCheckmarkCircleOutline className={`w-7 h-7 ${iconsBaseClass}`} />
       </AlertDialogPayment>

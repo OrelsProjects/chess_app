@@ -19,7 +19,7 @@ export default function Page({ params }: { params: { eventId: string } }) {
     }
   }, [params.eventId]);
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-4">
       {isAdmin && (
         <Button onClick={() => router.push("/events/add")}>הוסף אירוע</Button>
       )}
