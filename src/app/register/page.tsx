@@ -84,7 +84,6 @@ export default function Register() {
         success: "פרטים נשמרו",
         error: "לא הצלחנו לשמור את הפרטים",
       });
-      debugger;
       router.push("/home");
     } catch (e: any) {}
   };
@@ -103,8 +102,12 @@ export default function Register() {
         loading: "רק רגע...",
         success: "נרשמת בהצלחה",
         error: (e: any) => {
-          debugger;
-          return "";
+          const code = e.customData?._tokenResponse?.error?.code;
+          if (code === 400) {
+            formik.errors.username = "האימייל כבר קיים";
+            return "האימייל כבר קיים";
+          }
+          return "לא הצלחנו להרשם.. ננסה שוב?";
         },
       });
     } catch (e: any) {}
@@ -132,11 +135,9 @@ export default function Register() {
       setStage("player_number");
     }
     if (stage === "username_password") {
-      debugger;
       router.push("/login");
     }
     if (stage === "player_number") {
-      debugger;
       router.push("/login");
     }
   };
@@ -388,6 +389,18 @@ export default function Register() {
             required
           />
           <Button type="submit">הרשם</Button>
+          <div>
+            יש לך משתמש?{" "}
+            <Button
+              variant="link"
+              onClick={() => {
+                router.push("/login");
+              }}
+              className="!p-0"
+            >
+              התחבר
+            </Button>
+          </div>
         </form>
       )}
     </div>

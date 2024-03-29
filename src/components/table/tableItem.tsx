@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { ChessEvent } from "../../models/chessEvent";
 import Image from "next/image";
 import { MdOutlineModeEdit, MdAccessTime, MdLocationPin } from "react-icons/md";
@@ -10,24 +10,83 @@ import BottomSheet from "../ui/custom/bottomSheet";
 import { Button } from "../ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { dateToDayOfTheWeek } from "../../utils/dateUtils";
+import useChessEvents from "../../hooks/useChessEvents";
+import GameTypeIcon from "../ui/gameTypeIcon";
+import AlertDialogPayment from "../ui/custom/alertDialogPayment";
+
+const iconsBaseClass = "w-6 h-6 sm:w-10 sm:h-10 cursor-pointer";
 
 interface TableItemProps {
   event: ChessEvent;
-  onEdit?: (event: ChessEvent) => void;
-  onRegister?: (event: ChessEvent) => void;
-  isRegistered?: boolean;
+  onEdit: (event: ChessEvent) => void;
+  onRegister: (event: ChessEvent) => void;
   isAdmin?: boolean;
   show?: boolean;
 }
+
+const SheetBottomContent = ({
+  event,
+  isRegistered,
+  onRegister,
+}: {
+  event: ChessEvent;
+  isRegistered: boolean;
+  onRegister: (event: ChessEvent) => void;
+}) => {
+  const handleOnRegister = () => {
+    if (!isRegistered && !event.isPaymentRequired) {
+      onRegister(event);
+    }
+  };
+
+  const YesButton = () => (
+    <Button
+      onClick={handleOnRegister}
+      variant={isRegistered ? "default" : "outline"}
+      className="rounded-full"
+    >
+      כן
+    </Button>
+  );
+
+  return (
+    <div className="px-4 bg-muted text-foreground absolute w-full h-12 right-0 bottom-0 flex flex-row items-center gap-2 ">
+      <div className="text-foreground">מגיע?</div>
+      {!event.isPaymentRequired && !isRegistered ? (
+        <AlertDialogPayment onAlreadyPaid={onRegister} event={event}>
+          <Button
+            variant={isRegistered ? "default" : "outline"}
+            className="rounded-full"
+          >
+            כן
+          </Button>
+        </AlertDialogPayment>
+      ) : (
+        <YesButton />
+      )}
+      <Button
+        onClick={() => {
+          if (isRegistered) {
+            onRegister(event);
+          }
+        }}
+        variant={isRegistered ? "outline" : "default"}
+        className="rounded-full"
+      >
+        לא
+      </Button>
+    </div>
+  );
+};
 
 const TableItem: React.FC<TableItemProps> = ({
   event,
   onEdit,
   onRegister,
-  isRegistered,
   isAdmin,
   show,
 }) => {
+  const { isRegisteredToEvent } = useChessEvents();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -40,7 +99,8 @@ const TableItem: React.FC<TableItemProps> = ({
     }
   };
 
-  const iconsBaseClass = "w-6 h-6 sm:w-10 sm:h-10 cursor-pointer";
+  const isRegistered = useMemo(() => isRegisteredToEvent(event), [event]);
+
   const AdminButtons: React.FC = () => {
     return (
       <div className="flex gap-1 items-center">
@@ -62,14 +122,18 @@ const TableItem: React.FC<TableItemProps> = ({
           e.stopPropagation();
           onRegister?.(event);
         }}
-        className={`text-green-500 ${iconsBaseClass} !w-7 !h-7`}
+        className={`text-green-500 w-7 h-7 ${iconsBaseClass} `}
       />
+    ) : !event.isPaymentRequired ? (
+      <AlertDialogPayment onAlreadyPaid={onRegister} event={event}>
+        <IoIosCheckmarkCircleOutline className={`w-7 h-7 ${iconsBaseClass}`} />
+      </AlertDialogPayment>
     ) : (
       <IoIosCheckmarkCircleOutline
-        className={`${iconsBaseClass} !w-7 !h-7`}
+        className={`w-7 h-7 ${iconsBaseClass}`}
         onClick={(e) => {
           e.stopPropagation();
-          onRegister?.(event);
+          onRegister(event);
         }}
       />
     );
@@ -101,35 +165,17 @@ const TableItem: React.FC<TableItemProps> = ({
     );
   };
 
-  const SheetBottomContent = () => (
-    <div className="px-4 bg-muted text-foreground absolute w-full h-12 right-0 bottom-0 flex flex-row items-center gap-2 ">
-      <div className="text-foreground">מגיע?</div>
-      <Button
-        onClick={() => {
-          onRegister?.(event);
-        }}
-        variant={isRegistered ? "default" : "outline"}
-        className="rounded-full"
-      >
-        כן
-      </Button>
-      <Button
-        onClick={() => {
-          onRegister?.(event);
-        }}
-        variant={isRegistered ? "outline" : "default"}
-        className="rounded-full"
-      >
-        לא
-      </Button>
-    </div>
-  );
-
   return (
     <BottomSheet
       title={event.name}
       content={<ChessEventContent />}
-      bottomContent={<SheetBottomContent />}
+      bottomContent={
+        <SheetBottomContent
+          event={event}
+          isRegistered={isRegistered}
+          onRegister={onRegister}
+        />
+      }
       open={show}
       key={`chess-event-in-table-${event.id}`}
       onOpenChange={handleOpenChange}
@@ -144,6 +190,7 @@ const TableItem: React.FC<TableItemProps> = ({
         <div>
           <div>{event.name}</div>
           <div>{event.date}</div>
+          <GameTypeIcon gameType={event.type} />
         </div>
         <div className="flex flex-row gap-1">
           {isAdmin && <AdminButtons />}

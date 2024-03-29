@@ -9,9 +9,10 @@ import useAuth from "../../../hooks/useAuth";
 
 export default function Page({ params }: { params: { eventId: string } }) {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, isAdmin } = useAuth();
   const { events } = useChessEvents();
   const [eventIdToShow, setEventIdToShow] = React.useState<string | null>(null);
+  console.log("events page");
   useEffect(() => {
     if (params.eventId && params.eventId[0]) {
       setEventIdToShow(params.eventId[0]);
@@ -19,7 +20,9 @@ export default function Page({ params }: { params: { eventId: string } }) {
   }, [params.eventId]);
   return (
     <div className="flex flex-col">
-      <Button onClick={() => router.push("/events/add")}>הוסף אירוע</Button>
+      {isAdmin && (
+        <Button onClick={() => router.push("/events/add")}>הוסף אירוע</Button>
+      )}
       <Table events={events} showEventId={eventIdToShow} />
       <div className="text-red-500" onClick={logout}>
         התנתק

@@ -1,11 +1,9 @@
+import { Loading } from "../components/ui/loading";
 
 export default function Home() {
-
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24 bg-red-500">
-      <div>
-
-      </div>
-    </main>
+    <div className="w-screen h-screen flex items-center justify-center">
+      <Loading className="w-10 h-10" />
+    </div>
   );
 }

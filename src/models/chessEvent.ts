@@ -1,6 +1,6 @@
 import { ChessEventParticipant } from "./chessEventParticipant";
 
-export const eventTypeToName = (type?: EventType) => {
+export const eventTypeToName = (type?: GameType) => {
   switch (type) {
     case "bullet":
       return "קליע";
@@ -13,7 +13,7 @@ export const eventTypeToName = (type?: EventType) => {
   }
 };
 
-export type EventType = "bullet" | "blitz" | "rapid" | "classical";
+export type GameType = "bullet" | "blitz" | "rapid" | "classical";
 
 export interface ChessEvent {
   id: string;
@@ -26,7 +26,8 @@ export interface ChessEvent {
   location?: string;
   rated?: boolean;
   ratedFide?: boolean;
-  type: EventType;
+  isPaymentRequired: boolean;
+  type: GameType;
 }
 
 type ChessEventImage = { imageFile: File | null };
@@ -35,5 +36,5 @@ export type CreateChessEvent = Omit<ChessEvent, "id"> & ChessEventImage;
 export type UpdateChessEvent = ChessEvent & ChessEventImage;
 
 export type ChessEvenData = ChessEvent & {
-  participants?: Record<string, ChessEventParticipant>;
+  participants?: ChessEventParticipant[];
 };

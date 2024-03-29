@@ -17,7 +17,6 @@ export default function AdminProvider({
   const isAdmin = useMemo(() => user?.role === "admin", [user]);
 
   useEffect(() => {
-    debugger;
     if (!isAdmin && !loading) {
       router.push("/home");
     }

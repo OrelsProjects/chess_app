@@ -17,7 +17,7 @@ async function validateRequest(req: NextRequest) {
   const userId = req.headers.get("x-user-id") as string;
   const token = req.headers.get("Authorization") as string;
   const user = await getUser(userId, token);
-  if (user.role !== "admin") {
+  if (user?.role !== "admin") {
     throw new UnauthorizedError();
   }
 }

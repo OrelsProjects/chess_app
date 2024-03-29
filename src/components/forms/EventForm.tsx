@@ -47,6 +47,7 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
       location: event?.location ?? "",
       rated: event?.rated ?? false,
       ratedFide: event?.ratedFide ?? false,
+      isPaymentRequired: event?.isPaymentRequired ?? false,
     },
 
     onSubmit: (values: ChessEvent) => {
@@ -87,6 +88,7 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
         rated: event.rated,
         ratedFide: event.ratedFide,
         type: event.type,
+        isPaymentRequired: event.isPaymentRequired,
       });
     }
   }, [event]);
@@ -216,7 +218,24 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
           )}
         </div>
 
-        <div>
+        <div className="flex flex-row justify-start items-center gap-1">
+          <Checkbox
+            id="isPaymentRequired"
+            className="mr-1"
+            checked={formik.values.isPaymentRequired}
+            onCheckedChange={(checked) => {
+              formik.setFieldValue("isPaymentRequired", checked);
+            }}
+            {...formik.getFieldProps("isPaymentRequired")}
+          />
+          <Label htmlFor="isPaymentRequired">חייב בתשלום?</Label>
+
+          {formik.touched.rated && formik.errors.rated && (
+            <div>{formik.errors.rated}</div>
+          )}
+        </div>
+
+        <div className="flex flex-row justify-start items-center gap-1">
           <Checkbox
             id="rated"
             className="mr-1"
@@ -233,7 +252,7 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
           )}
         </div>
 
-        <div>
+        <div className="flex flex-row justify-start items-center gap-1">
           <Checkbox
             id="ratedFide"
             className="mr-1"

@@ -54,14 +54,13 @@ export const registerToEvent = async (
     updatedAt: new Date().toISOString(),
   };
 
-  await setDoc(
+  await updateDoc(
     doc,
     {
       participants: {
         [participant.userId]: data,
       },
     },
-    { merge: true }
   );
 };
 

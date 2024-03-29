@@ -29,19 +29,22 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<UserFullData | null>) => {
-      if (
-        (_.isEqual(state.user, action.payload) &&
-          state.state === "authenticated") ||
-        state.state === "anonymous"
-      ) {
-        state.loading = false;
+    setUser: (
+      state,
+      action: PayloadAction<(UserFullData & { state?: AuthStateType }) | null>
+    ) => {
+      state.loading = false;
+      if (!action.payload) {
+        state.user = null;
+        state.state = "unauthenticated";
         return;
       }
-      state.user = action.payload;
+      const { state: authState, ...user } = action.payload;
+      if (user && !_.isEqual(state.user, user)) {
+        state.user = user;
+      }
       state.isAdmin = action.payload?.role === "admin";
-      state.loading = false;
-      state.state = action.payload ? "authenticated" : "unauthenticated";
+      state.state = action.payload.state ?? "authenticated";
     },
     setError: (state, action: PayloadAction<string | null>) => {
       console.error(action.payload);

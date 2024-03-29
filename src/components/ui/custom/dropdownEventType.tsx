@@ -12,14 +12,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { EventType, eventTypeToName } from "../../../models/chessEvent";
+import { GameType, eventTypeToName } from "../../../models/chessEvent";
 
 export default function DropdownEventType({
   value,
   onChange,
 }: {
-  value: EventType;
-  onChange: (eventType: EventType) => void;
+  value: GameType;
+  onChange: (eventType: GameType) => void;
 }) {
   return (
     <DropdownMenu dir="rtl">
@@ -34,7 +34,7 @@ export default function DropdownEventType({
         <DropdownMenuRadioGroup
           value={value}
           onValueChange={(value) => {
-            onChange(value as EventType);
+            onChange(value as GameType);
           }}
         >
           <DropdownMenuRadioItem value="bullet">

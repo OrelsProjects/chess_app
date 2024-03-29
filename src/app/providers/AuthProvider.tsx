@@ -24,15 +24,12 @@ export default function AuthProvider({
     const unsubscribe = onAuthStateChanged(
       auth,
       (user) => {
-        debugger;
         setUserData(user);
       },
       (error: any) => {
-        debugger;
         console.error("Error setting user data", error);
       },
       () => {
-        debugger;
         console.log("Completed setting user data");
       }
     );
@@ -44,19 +41,12 @@ export default function AuthProvider({
 
   useEffect(() => {
     if (loadingAuth) return;
-    if (state === "unauthenticated") {
-      if (pathname !== "/login" && pathname !== "/register") {
-        debugger;
-        router.push("/login");
-      }
-    } else {
-      if (pathname.includes("register")) {
-        debugger;
-        router.push("/register");
-      } else if (pathname === "/login" || pathname === "/") {
-        debugger;
-        router.push("/home");
-      }
+    if (state === "authenticated" || state === "anonymous") {
+      router.push("/home");
+      return;
+    }
+    if (pathname !== "/login" && pathname !== "/register") {
+      router.push("/login");
     }
   }, [state, loadingAuth]);
   if (loadingAuth) {

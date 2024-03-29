@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
+  AuthStateType,
   selectAuth,
   setError,
   setUser as setUserAction,
@@ -22,7 +23,13 @@ import PlayerDetails from "../models/playerDetails";
 export default function useAuth() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { user, loading, error } = useSelector(selectAuth);
+  const {
+    user,
+    loading,
+    error,
+    state: authState,
+    isAdmin,
+  } = useSelector(selectAuth);
 
   const updateUserPlayerDetails = async (playerDetails: PlayerDetails) => {
     try {
@@ -48,12 +55,8 @@ export default function useAuth() {
         user: { ...firebaseUserToUser(user) },
       });
       userFromDB = response.data.user;
-      dispatch(setUserAction(userFromDB));
-      if (response.data.state === "registration_required") {
-        debugger;
-        router.push("/register");
-        return;
-      }
+      let state: AuthStateType | undefined = response.data.state;
+      dispatch(setUserAction({ ...userFromDB, state }));
     } catch (error: any) {
       console.error("Error setting user data", error);
       dispatch(setUserAction(null));
@@ -103,6 +106,7 @@ export default function useAuth() {
       await setUserData(userCredentials.user);
     } catch (error: any) {
       dispatch(setError(error.message));
+      throw error;
     }
   };
 
@@ -113,6 +117,8 @@ export default function useAuth() {
 
   return {
     user,
+    isAdmin,
+    authState,
     loading,
     error,
     login,

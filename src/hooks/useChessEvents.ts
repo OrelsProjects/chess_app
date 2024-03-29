@@ -31,9 +31,11 @@ const useChessEvents = () => {
   }, [eventsRedux]);
 
   const isRegisteredToEvent = useCallback(
-    (event: ChessEventData) => {
-      return event.participants?.some(
-        (participant) => participant.userId === user?.userId
+    (event: ChessEventData): boolean => {
+      return (
+        event.participants?.some(
+          (participant) => participant.userId === user?.userId
+        ) ?? false
       );
     },
     [user]

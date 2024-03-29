@@ -46,10 +46,6 @@ const Table: React.FC<TableItemProps> = ({ events, showEventId }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-row justify-between">
-        <div>אירועים</div>
-        <div>פעולות</div>
-      </div>
       <div className="flex flex-col overflow-auto gap-3">
         {loading ? (
           <Loading />
@@ -60,7 +56,6 @@ const Table: React.FC<TableItemProps> = ({ events, showEventId }) => {
               event={event}
               onEdit={handleOnEdit}
               onRegister={handleRegister}
-              isRegistered={isRegisteredToEvent(event)}
               isAdmin={isAdmin}
               show={showEventId === event.id}
             />

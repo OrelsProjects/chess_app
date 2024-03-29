@@ -35,7 +35,7 @@ export default function BottomSheet({
       <SheetTrigger>{children}</SheetTrigger>
       <SheetContent side={side} className="h-1/2 rounded-t-lg">
         <SheetHeader>
-          <SheetTitle className="tracking-tight">{title}</SheetTitle>
+          <SheetTitle className="tracking-tight text-center mt-4">{title}</SheetTitle>
           {description && <SheetDescription>{description}</SheetDescription>}
         </SheetHeader>
         {content}

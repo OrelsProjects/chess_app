@@ -47,8 +47,8 @@ export function UserAuthForm({
   }) {
     setIsLoading(true);
     try {
-      debugger;
       await login(username, password);
+      router.push("/register");
     } catch (error) {
       console.error("Login failed:", error);
       // Handle the error, e.g., show a message to the user
