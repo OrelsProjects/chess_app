@@ -16,7 +16,10 @@ import {
   removeParticipant as removeParticipantAction,
 } from "../lib/features/chessEvents/chessEventsSlice";
 import { selectAuth } from "../lib/features/auth/authSlice";
-import { ChessEventParticipant } from "../models/chessEventParticipant";
+import {
+  ChessEventParticipant,
+  ChessEventParticipantData,
+} from "../models/chessEventParticipant";
 
 const useChessEvents = () => {
   const dispatch = useDispatch();
@@ -149,6 +152,25 @@ const useChessEvents = () => {
     }
   };
 
+  const getEventParticipants = async (
+    eventId: string
+  ): Promise<ChessEventParticipantData[]> => {
+    if (loading) throw new Error("אנא המתן כמה רגעים");
+    setLoading(true);
+
+    try {
+      const participants = await axios.get<ChessEventParticipantData[]>(
+        `/api/events/${eventId}/participants`
+      );
+      return participants.data;
+    } catch (e) {
+      console.error(e);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     events,
     loading,
@@ -160,6 +182,7 @@ const useChessEvents = () => {
     updateEvent,
     createEvent,
     unregisterFromEvent,
+    getEventParticipants,
   };
 };
 

@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config = {
-  darkMode: ["class"],
+  darkMode: "selector",
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -79,7 +79,7 @@ const config = {
       },
       // grid column 0.2, 0.6, 0.2
       gridTemplateColumns: {
-        "table": "0.25fr 0.7fr 0.05fr",
+        table: "0.25fr 0.7fr 0.05fr",
       },
     },
   },

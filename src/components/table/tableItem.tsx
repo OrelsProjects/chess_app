@@ -1,4 +1,5 @@
-import React, { useMemo } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useMemo, useState } from "react";
 import { ChessEvent } from "../../models/chessEvent";
 import Image from "next/image";
 import { MdOutlineModeEdit, MdAccessTime, MdLocationPin } from "react-icons/md";
@@ -13,6 +14,12 @@ import { dateToDayOfTheWeek } from "../../utils/dateUtils";
 import useChessEvents from "../../hooks/useChessEvents";
 import GameTypeIcon from "../ui/gameTypeIcon";
 import AlertDialogPayment from "../ui/custom/alertDialogPayment";
+import ReadMoreText from "../ui/read-more";
+import {
+  ChessEventParticipant,
+  ChessEventParticipantData,
+} from "../../models/chessEventParticipant";
+import toast from "react-hot-toast";
 
 const iconsBaseClass = "w-6 h-6 sm:w-10 sm:h-10 cursor-pointer";
 
@@ -50,7 +57,7 @@ const SheetBottomContent = ({
   );
 
   return (
-    <div className="px-4 bg-muted text-foreground absolute w-full h-12 right-0 bottom-0 flex flex-row items-center gap-2 ">
+    <div className="px-4 bg-muted text-foreground fixed w-full h-12 right-0 bottom-0 flex flex-row items-center gap-2 ">
       <div className="text-foreground">מגיע?</div>
       {event.isPaymentRequired && !isRegistered ? (
         <AlertDialogPayment onAlreadyPaid={onRegister} event={event}>
@@ -86,9 +93,23 @@ const TableItem: React.FC<TableItemProps> = ({
   isAdmin,
   show,
 }) => {
-  const { isRegisteredToEvent } = useChessEvents();
+  const { isRegisteredToEvent, getEventParticipants } = useChessEvents();
+  const [participants, setParticipants] = useState<ChessEventParticipantData[]>(
+    []
+  );
   const pathname = usePathname();
   const router = useRouter();
+
+  const handleFetchParticipants = async () => {
+    await toast.promise(getEventParticipants(event.id), {
+      loading: "טוען משתתפים...",
+      success: (data: ChessEventParticipantData[]) => {
+        setParticipants(data);
+        return "המשתתפים נטענו בהצלחה!";
+      },
+      error: "שגיאה בטעינת המשתתפים",
+    });
+  };
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
@@ -152,14 +173,27 @@ const TableItem: React.FC<TableItemProps> = ({
           <MdLocationPin className="w-6 h-6" />
           <div>{event.location}</div>
         </div>
-        <div className="text-muted-foreground mt-4">{event.description}</div>
-        <div className="absolute top-4 left-4">
-          <Image
-            src={event.image ?? ""}
-            alt={event.name}
-            fill
-            className="rounded-lg !relative !w-16 !h-16 "
-          />
+        <ReadMoreText
+          className="text-muted-foreground text-base mt-4"
+          text={event.description}
+          maxLines={2}
+        />
+        <div
+          className="cursor-pointer flex flex-col gap-4"
+          onClick={handleFetchParticipants}
+        >
+          <p>משתתפים</p>
+          <div className="flex flex-col gap-1">
+            {participants.map((participant) => (
+              <div
+                key={`event-participant-${
+                  participant.displayName ?? participant.playerNumber
+                }`}
+              >
+                {participant.firstName + " " + participant.lastName}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -167,7 +201,20 @@ const TableItem: React.FC<TableItemProps> = ({
 
   return (
     <BottomSheet
-      title={event.name}
+      title={
+        <div className="flex flex-row gap-2 justify-start items-center">
+          <Image
+            src={event.image ?? ""}
+            alt={event.name}
+            fill
+            className="rounded-lg !relative !w-16 !h-16 md:!h-32 md:!w-32"
+          />
+          <div className="flex flex-col gap-1">
+            <div className="text-2xl md:text-4xl">{event.name}</div>
+            <GameTypeIcon gameType={event.type} />
+          </div>
+        </div>
+      }
       content={<ChessEventContent />}
       bottomContent={
         <SheetBottomContent
@@ -185,11 +232,11 @@ const TableItem: React.FC<TableItemProps> = ({
           src={event.image ?? ""}
           alt={event.name}
           fill
-          className="rounded-lg !relative !w-16 !h-16 "
+          className="rounded-lg !relative !w-16 !h-16 md:!h-32 md:!w-32"
         />
         <div>
-          <div>{event.name}</div>
-          <div>{event.date}</div>
+          <div className="text-base md:text-2xl">{event.name}</div>
+          <div className="text-base md:text-2xl">{event.date}</div>
           <GameTypeIcon gameType={event.type} />
         </div>
         <div className="flex flex-row gap-1">

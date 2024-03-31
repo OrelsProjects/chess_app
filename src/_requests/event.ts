@@ -5,8 +5,6 @@ import {
   where,
   deleteField,
   updateDoc,
-  DocumentReference,
-  getDoc,
   deleteDoc,
 } from "firebase/firestore";
 import { ChessEvenData, ChessEvent } from "../models/chessEvent";

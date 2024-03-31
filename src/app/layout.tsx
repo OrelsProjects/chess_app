@@ -22,7 +22,7 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children, locale }: RootLayoutProps) {
   return (
-    <html lang={locale} dir="rtl">
+    <html lang={locale} dir="rtl" className="light">
       <body className={`${inter.className}`}>
         <StoreProvider>
           <AuthProvider>

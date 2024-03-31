@@ -16,7 +16,7 @@ interface BottomSheetProps extends DialogProps {
   content: React.ReactNode;
   bottomContent?: React.ReactNode;
   onOpenChange?: (isOpen: boolean) => void;
-  title: string;
+  title: React.ReactNode;
   description?: string;
 }
 
@@ -33,13 +33,18 @@ export default function BottomSheet({
   return (
     <Sheet key={side} onOpenChange={onOpenChange} {...props}>
       <SheetTrigger>{children}</SheetTrigger>
-      <SheetContent side={side} className="h-1/2 rounded-t-lg">
+      <SheetContent
+        side={side}
+        className="h-3/4 rounded-t-lg overflow-auto max-h-[75%]"
+      >
         <SheetHeader>
-          <SheetTitle className="tracking-tight text-center mt-4">{title}</SheetTitle>
+          <SheetTitle className="tracking-tight text-center mt-4">
+            {title}
+          </SheetTitle>
           {description && <SheetDescription>{description}</SheetDescription>}
         </SheetHeader>
         {content}
-        <div className="flex flex-col justify-end h-inherit max-h-fit">
+        <div className="flex flex-col justify-end h-inherit">
           <SheetFooter>{bottomContent}</SheetFooter>
         </div>
       </SheetContent>
