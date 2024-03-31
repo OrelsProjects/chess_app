@@ -39,7 +39,7 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
       id: event?.id ?? "",
       name: event?.name ?? "",
       description: event?.description ?? "",
-      date: event?.date ?? "",
+      date: event?.date ?? new Date().getTime(),
       time: event?.time ?? "",
       price: event?.price,
       type: event?.type ?? "rapid",
@@ -54,17 +54,18 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
       if (!isEdit && !eventImage) {
         return;
       }
+      const date = new Date(values.date).getTime();
+      const data = {
+        ...values,
+        date,
+        imageFile: eventImage,
+      };
+
       if (isEdit) {
-        const updateEvent = {
-          ...values,
-          imageFile: eventImage,
-        };
+        const updateEvent = { ...data };
         onSubmitUpdate?.(updateEvent);
       } else {
-        const createEvent: CreateChessEvent = {
-          ...values,
-          imageFile: eventImage,
-        };
+        const createEvent: CreateChessEvent = { ...data };
         onSubmit?.(createEvent);
       }
     },
@@ -136,10 +137,11 @@ const EventForm: React.FC<EventFormProps & UpdateEventFormProps> = ({
             id="date"
             type="date"
             {...formik.getFieldProps("date")}
+            value={new Date(formik.values.date).toISOString().split("T")[0]}
             required
           />
           {formik.touched.date && formik.errors.date && (
-            <div>{formik.errors.date}</div>
+            <div>{formik.errors.date ? "שדה חובה" : ""}</div>
           )}
         </div>
         <div>

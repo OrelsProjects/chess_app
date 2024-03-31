@@ -12,6 +12,7 @@ import {
 } from "../../../_requests/files";
 import { UnauthorizedError } from "../../../models/errors/UnauthorizedError";
 import { ChessEvenData } from "../../../models/chessEvent";
+import { Timestamp } from "firebase/firestore";
 
 async function validateRequest(req: NextRequest) {
   const userId = req.headers.get("x-user-id") as string;
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest) {
     const { id, participants, ...eventDataNoId } = eventData.event;
     responseBody = await createEvent({
       ...eventDataNoId,
+      date: Timestamp.fromMillis(eventDataNoId.date),
       image: imagePath,
     });
   } catch (err) {
@@ -99,6 +101,7 @@ export async function PATCH(req: NextRequest) {
       }
       responseBody = await updateEvent({
         ...eventData.event,
+        date: Timestamp.fromMillis(eventData.event.date),
         image: newImagePath,
       });
     } else {

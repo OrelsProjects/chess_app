@@ -6,18 +6,22 @@ import {
   deleteField,
   updateDoc,
   deleteDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { ChessEvenData, ChessEvent } from "../models/chessEvent";
 import { validateEventExists, eventsCol, getEventDoc } from "./common";
-import { chessEventConverter } from "./converters/ChessEvents";
 import { ChessEventParticipant } from "../models/chessEventParticipant";
 
+export type ChessEventDataFirestore = Omit<ChessEvenData, "date"> & {
+  date: Timestamp;
+};
+
 export const updateEvent = async (
-  event: ChessEvenData
+  event: ChessEventDataFirestore
 ): Promise<ChessEvenData> => {
   validateEventExists(event.id);
   await setDoc(getEventDoc(event.id), event, { merge: true });
-  return event;
+  return { ...event, date: event.date.toMillis() };
 };
 
 export const deleteEvent = async (id: string): Promise<void> =>
@@ -52,33 +56,37 @@ export const registerToEvent = async (
     updatedAt: new Date().toISOString(),
   };
 
-  await updateDoc(
-    doc,
-    {
-      participants: {
-        [participant.userId]: data,
-      },
+  await updateDoc(doc, {
+    participants: {
+      [participant.userId]: data,
     },
-  );
+  });
 };
 
 export const createEvent = async (
-  event: Omit<ChessEvent, "id">
+  event: Omit<ChessEventDataFirestore, "id">
 ): Promise<ChessEvent> => {
   const doc = getEventDoc();
   const eventData = { ...event, isDeleted: false };
   await setDoc(doc, { ...eventData, id: doc.id });
   return {
     ...event,
+    date: event.date.toMillis(),
     id: doc.id,
   };
 };
 
 export const GetEvents = async (): Promise<ChessEvenData[]> => {
   const col = eventsCol;
-  const q = query(col, where("isDeleted", "==", false)).withConverter(
-    chessEventConverter
+  // date formatted as yyyy-mm-dd
+  const dateFormatted = new Date();
+
+  const q = query(
+    col,
+    where("isDeleted", "==", false),
+    where("date", ">=", dateFormatted)
   );
+
   const events = await getDocs(q);
 
   return events.docs.map((doc) => ({ ...doc.data(), id: doc.id }));

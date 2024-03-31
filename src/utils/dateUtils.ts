@@ -18,12 +18,17 @@ const daysOfTheWeekHebrew: { [key: number]: string } = {
   6: "שבת",
 };
 
-export const dateToDayOfTheWeek = (date: string): string => {
+export const dateToDayOfTheWeek = (date: string | number): string => {
   const day = new Date(date).getDay();
   return daysOfTheWeekHebrew[day];
 };
 
-export const toDate = (epochTime: string | number): string => {
+// yyyy-mm-dd
+export const formatDate = (date: string | number): string => {
+  return new Date(date).toLocaleDateString("he-IL");
+};
+
+export const toDate = (epochTime: string | number): Date => {
   let timeIntSeconds: any = epochTime;
   if (typeof epochTime === "string") {
     timeIntSeconds =
@@ -37,5 +42,5 @@ export const toDate = (epochTime: string | number): string => {
   } else {
     throw new Error(`Date not valid in toDate: ${epochTime}`);
   }
-  return new Date(timeIntSeconds * 1000).toISOString();
+  return new Date(timeIntSeconds * 1000);
 };

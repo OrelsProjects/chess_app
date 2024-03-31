@@ -20,7 +20,9 @@ export const usersCol = collection(db, collections.users);
 export const getUserDoc = (userId: string) =>
   doc(usersCol, userId).withConverter(userConvereter);
 
-export const eventsCol = collection(db, collections.events);
+export const eventsCol = collection(db, collections.events).withConverter(
+  chessEventConverter
+);
 export const getEventDoc = (
   eventId?: string
 ): DocumentReference<ChessEvenData, DocumentData> =>

@@ -10,7 +10,7 @@ import {
 import BottomSheet from "../ui/custom/bottomSheet";
 import { Button } from "../ui/button";
 import { usePathname, useRouter } from "next/navigation";
-import { dateToDayOfTheWeek } from "../../utils/dateUtils";
+import { dateToDayOfTheWeek, formatDate } from "../../utils/dateUtils";
 import useChessEvents from "../../hooks/useChessEvents";
 import GameTypeIcon from "../ui/gameTypeIcon";
 import AlertDialogPayment from "../ui/custom/alertDialogPayment";
@@ -166,7 +166,8 @@ const TableItem: React.FC<TableItemProps> = ({
         <div className="w-full flex flex-row gap-4 items-center">
           <MdAccessTime className="w-5 h-5 mr-0.5" />
           <div>
-            {dateToDayOfTheWeek(event.date)}, {event.date} • {event.time}
+            {dateToDayOfTheWeek(event.date)}, {formatDate(event.date)} •{" "}
+            {event.time}
           </div>
         </div>
         <div className="w-full flex flex-row gap-3 items-center">
@@ -178,23 +179,25 @@ const TableItem: React.FC<TableItemProps> = ({
           text={event.description}
           maxLines={2}
         />
-        <div
-          className="cursor-pointer flex flex-col gap-4"
-          onClick={handleFetchParticipants}
-        >
-          <p>משתתפים</p>
-          <div className="flex flex-col gap-1">
-            {participants.map((participant) => (
-              <div
-                key={`event-participant-${
-                  participant.displayName ?? participant.playerNumber
-                }`}
-              >
-                {participant.firstName + " " + participant.lastName}
-              </div>
-            ))}
+        {isAdmin && (
+          <div
+            className="cursor-pointer flex flex-col gap-4"
+            onClick={handleFetchParticipants}
+          >
+            <p>משתתפים</p>
+            <div className="flex flex-col gap-1">
+              {participants.map((participant) => (
+                <div
+                  key={`event-participant-${
+                    participant.displayName ?? participant.playerNumber
+                  }`}
+                >
+                  {participant.firstName + " " + participant.lastName}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   };
@@ -236,7 +239,7 @@ const TableItem: React.FC<TableItemProps> = ({
         />
         <div>
           <div className="text-base md:text-2xl">{event.name}</div>
-          <div className="text-base md:text-2xl">{event.date}</div>
+          <div className="text-base md:text-2xl">{formatDate(event.date)}</div>
           <GameTypeIcon gameType={event.type} />
         </div>
         <div className="flex flex-row gap-1">

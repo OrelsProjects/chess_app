@@ -2,7 +2,7 @@ import axios from "axios";
 import { load } from "cheerio";
 import PlayerNumberNotFoundError from "../../models/errors/PlayerNotFoundError";
 import PlayerDetails from "../../models/playerDetails";
-import { toDate } from "../../utils/dateUtils";
+
 const extractFirstAndLastName = (fullName: string) => {
   const trimmedFullName = fullName.trim();
   const nameParts = trimmedFullName.split(" ");

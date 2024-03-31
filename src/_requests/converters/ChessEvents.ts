@@ -1,5 +1,6 @@
-import { FirestoreDataConverter } from "firebase/firestore";
+import { FirestoreDataConverter, Timestamp } from "firebase/firestore";
 import { ChessEvenData, GameType } from "../../models/chessEvent";
+import { toDate } from "../../utils/dateUtils";
 
 export const chessEventConverter: FirestoreDataConverter<ChessEvenData> = {
   toFirestore(chessEvent: ChessEvenData): any {
@@ -14,19 +15,19 @@ export const chessEventConverter: FirestoreDataConverter<ChessEvenData> = {
         eventId: participant.eventId,
       })
     );
+    const eventDate = (data.date as Timestamp).toMillis();
 
     return {
       id: snapshot.id as string,
       name: data.name as string,
-      date: data.date as string,
-      time: data.time as string,
+      date: eventDate,
+      time: data.time,
       type: data.type as GameType,
       location: data.location as string,
       description: data.description as string,
       image: data.image as string,
       isPaymentRequired: !!data.isPaymentRequired,
       participants,
-      ...rest,
     };
   },
 };
